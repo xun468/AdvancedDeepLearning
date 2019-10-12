@@ -59,9 +59,18 @@ def identity_block(X, f, filters, stage, block, regularize=True):
 def convolutional_block():
 	return
 
-def resnet(input_shape, n_classes):
+def resnet(input_shape, n_classes=1000):
 	X_input = Input(input_shape)
 
+	X = ZeroPadding2D((3, 3))(X_input)
+
+    # Stage 1, assuming color channel is last, will need to check with real dataset 
+    X = Conv2D(64, (7, 7), strides=(2, 2), padding='valid', kernel_initializer='he_normal', name='conv1')(X)
+    X = BatchNormalization(axis=3, name='bn_conv1')(X)
+    X = Activation('relu')(X)
+    X = MaxPooling2D((3, 3), strides=(2, 2))(X)
+
+    #Stage 2
 	#convblock
 	#id
 	#id 
