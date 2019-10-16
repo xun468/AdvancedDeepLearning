@@ -6,17 +6,20 @@ from utils import display_image
 class ProjectedGradientDescent:
     def __init__(self, model, orig_image, target_label, exp=False):
         self.loss = tf.keras.losses.CategoricalCrossentropy()
-        self.iters = 10
+        self.iters = 60
         self.norm = 'l2'
         self.lr = 0.5
-        self.eps = 60
+        self.eps = 30
         self.orig_image = orig_image
         self.model = model
         self.target_label = target_label
 
         self.exp = exp
 
-        self.normalizer = 1  # TODO: Shouldn't we calculate the l-ball in 256 image space??? Now we do in 0-1
+        self.normalizer = 255   # TODO: Should we calculate the gradient in 0-1 or 0-255 image space...?
+                                # Affects epsilon to a large degree
+                                # It's gotta be in 0-1, because 30 eps in 0-256 wouldn't allow for any changes?
+                                # But at the same time worse at actually changing a classification
 
     def step(self, image):
         with tf.GradientTape() as tape:
@@ -27,9 +30,9 @@ class ProjectedGradientDescent:
         grad = tape.gradient(loss, image)
         signed_grad = tf.sign(grad)
 
-        image += self.lr * signed_grad
+        image -= self.lr * signed_grad * self.normalizer
 
-        diff = (image - self.orig_image) * self.normalizer  # Epsilon is measured in 256 image space
+        diff = (image - self.orig_image) / self.normalizer  # Epsilon is measured in 256 image space
 
         if self.norm == 'l2':
             diff1 = tf.clip_by_norm(diff, self.eps)
@@ -45,7 +48,7 @@ class ProjectedGradientDescent:
         elif self.norm == 'inf':
             diff = tf.clip_by_value(diff, -self.eps, self.eps)
 
-        image = tf.clip_by_value(self.orig_image + diff / self.normalizer, 0, 1)
+        image = tf.clip_by_value(self.orig_image + diff * self.normalizer, 0, 255)
 
         return image
 
