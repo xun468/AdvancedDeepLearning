@@ -1,8 +1,8 @@
 import numpy as np
-from keras import layers
-from keras.layers import *
-from keras.models import Model, load_model
-from keras.regularizers import l2
+from tensorflow.keras import layers
+from tensorflow.keras.layers import *
+from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.regularizers import l2
 
 def id_block(X, f, filters, stage, block, regularize=True):
 	#X = Tensor
