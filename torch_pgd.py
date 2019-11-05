@@ -2,6 +2,7 @@ import torch as ch
 from torch.autograd import Variable
 import torch.nn as nn
 
+
 def pgd_attack(img, eps, model, steps=5, step_size=.1, targeted_attack=False, target_class=0, norm='l2',
                verbose=True):
     # Based on the tutorial: https://pytorch.org/tutorials/beginner/fgsm_tutorial.html
@@ -50,6 +51,7 @@ def pgd_attack(img, eps, model, steps=5, step_size=.1, targeted_attack=False, ta
         else:
             diff = ch.clamp(diff, -eps, eps)
         pert_img = img + diff
+
 
         pert_img = Variable(ch.clamp(pert_img, 0, 1))
 
